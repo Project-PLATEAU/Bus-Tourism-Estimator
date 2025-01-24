@@ -74,7 +74,7 @@ WITH table_car_or_bike AS (
   SELECT
     common_id, seg_no, is_uuid, os, arrive_ptime, depart_time, visiting_seconds, cnt, mesh, is_stay,
     raw_element.sdk_detect_ptime, raw_element.latitude, raw_element.longitude, raw_element.accuracy,
-    raw_element.app, needs_tokuminer_flg, pred_tpmode, purpose_flg
+    needs_tokuminer_flg, pred_tpmode, purpose_flg
   FROM `input_sample` AS st
   CROSS JOIN UNNEST(st.raw_array) AS raw_element
   WHERE (pred_tpmode = "car" OR pred_tpmode = "bike")
@@ -126,13 +126,13 @@ bus_flg_table AS (
 bus_flg_cnt_1 AS (
   SELECT
     common_id, seg_no, is_uuid, os, sdk_detect_ptime, latitude, longitude,
-    arrive_ptime, depart_time, visiting_seconds, accuracy, app, cnt, mesh,
+    arrive_ptime, depart_time, visiting_seconds, accuracy, cnt, mesh,
     is_stay, needs_tokuminer_flg, pred_tpmode, purpose_flg,
     MAX(bus_flg) AS bus_flg
   FROM bus_flg_table
   GROUP BY
     common_id, seg_no, is_uuid, os, sdk_detect_ptime, latitude, longitude,
-    arrive_ptime, depart_time, visiting_seconds, accuracy, app, cnt, mesh,
+    arrive_ptime, depart_time, visiting_seconds, accuracy, cnt, mesh,
     is_stay, needs_tokuminer_flg, pred_tpmode, purpose_flg
 ),
 
@@ -158,7 +158,6 @@ bus_flg_cnt_2 AS (
     depart_time,
     visiting_seconds,
     accuracy,
-    app,
     cnt,
     mesh,
     is_stay,
@@ -170,7 +169,7 @@ bus_flg_cnt_2 AS (
   FROM bus_flg_table_v2
   GROUP BY
     common_id, seg_no, is_uuid, os, sdk_detect_ptime, latitude, longitude,
-    arrive_ptime, depart_time, visiting_seconds, accuracy, app, cnt, mesh,
+    arrive_ptime, depart_time, visiting_seconds, accuracy, cnt, mesh,
     is_stay, needs_tokuminer_flg, pred_tpmode, purpose_flg, bus_flg
 ),
 bus_flg_sum AS (
@@ -210,7 +209,7 @@ table_car_v2 AS (
   SELECT
     common_id, seg_no, is_uuid, os, arrive_ptime, depart_time, visiting_seconds,
     cnt, mesh, is_stay, raw_element.sdk_detect_ptime, raw_element.latitude,
-    raw_element.longitude, raw_element.accuracy, raw_element.app,
+    raw_element.longitude, raw_element.accuracy, 
     needs_tokuminer_flg, pred_tpmode, purpose_flg
   FROM move_table AS st
   CROSS JOIN UNNEST(st.raw_array) AS raw_element
