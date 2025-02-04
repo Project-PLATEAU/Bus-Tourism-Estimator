@@ -64,20 +64,19 @@ AS (
   )
 );
 #input_sample.csvを用いてBQ上にテーブルを作成してください。以下input_samle.jsonが中身のテーブルを`input_sample`と定義します。
-#長野県メッシュデータサンプル.csvを用いてBQ上にテーブルを作成してください。以下長野県メッシュデータサンプル.csvが中身のテーブルを`長野県メッシュデータ`と定義します。
-#ダミープローブデータサンプル.csvを用いてBQ上にテーブルを作成してください。以下ダミープローブデータサンプル.csvが中身のテーブルを`ダミープローブデータ`と定義します。
+#長野県メッシュデータサンプル.csvを用いてBQ上にテーブルを作成してください。以下長野県メッシュデータサンプル.csvが中身のテーブルを`長野県メッシュデータサンプル`と定義します。
+#ダミープローブデータサンプル.csvを用いてBQ上にテーブルを作成してください。以下ダミープローブデータサンプル.csvが中身のテーブルを`ダミープローブデータサンプル`と定義します。
 #長野県バスルートデータサンプル.csvを用いてBQ上にテーブルを作成してください。以下長野県バスルートデータサンプル.jsonが中身のテーブルを`長野県バスルートデータ`と定義します
 
 
 #まず車と自転車と予測したセグメントをログごとに分割する
-create or replace table `prd-analysis.w_t_akiyama.bus_output_sample_fix` as
 with
 table_car_or_bike AS (
   SELECT
     common_id, seg_no, is_uuid, os, arrive_ptime, depart_time, visiting_seconds, cnt, mesh, is_stay,
     raw_element.sdk_detect_ptime, raw_element.latitude_anonymous, raw_element.longitude_anonymous, raw_element.accuracy,
     needs_tokuminer_flg, pred_tpmode, purpose_flg
-  FROM `prd-analysis.w_t_akiyama.bus_input_sample` AS st
+  FROM `input_sample` AS st
   CROSS JOIN UNNEST(st.raw_array) AS raw_element
   WHERE (pred_tpmode = "car" OR pred_tpmode = "bike")
     AND raw_element.latitude_anonymous BETWEEN -90 AND 90
@@ -86,7 +85,7 @@ table_car_or_bike AS (
 
 table_not_car_bike AS (
   SELECT *
-  FROM `prd-analysis.w_t_akiyama.bus_input_sample`
+  FROM `input_sample`
   WHERE pred_tpmode != "car" AND pred_tpmode != "bike"
 ),
 
@@ -95,8 +94,8 @@ dummy_probe_joined AS (
   SELECT
     bus.*,
     -- mesh.mt_mesh など必要なら使える
-  FROM `prd-analysis.w_t_akiyama.dummy_probe_data_for_git` bus
-  JOIN `prd-analysis.w_t_akiyama.nagano_mesh_table` mesh
+  FROM `ダミープローブデータサンプル` bus
+  JOIN `長野県メッシュデータサンプル` mesh
     ON mesh.mt_mesh = CAST(convert_to_mesh(bus.lat, bus.lon) AS INT64)
   WHERE
     bus.lat IS NOT NULL
@@ -114,7 +113,7 @@ bus_flg_table AS (
     ON convert_to_mesh_9(bus.lat, bus.lon) = convert_to_mesh_9(table_car_or_bike.latitude_anonymous, table_car_or_bike.longitude_anonymous)
     AND DATE(table_car_or_bike.sdk_detect_ptime, "Asia/Tokyo")
          = DATE(TIMESTAMP(bus.date_time, "Asia/Tokyo"))
-    AND table_car_or_bike.sdk_detect_ptime BETWEEN
+    AND TIMESTAMP(DATETIME(table_car_or_bike.sdk_detect_ptime, "Asia/Tokyo")) BETWEEN
       TIMESTAMP(DATETIME_SUB(TIMESTAMP(bus.date_time, "Asia/Tokyo"), INTERVAL 30 SECOND))
       AND TIMESTAMP(DATETIME_ADD(TIMESTAMP(bus.date_time, "Asia/Tokyo"), INTERVAL 29 SECOND))
     AND ST_DWITHIN(
@@ -143,7 +142,7 @@ bus_flg_table_v2 AS (
     bft.*,
     CASE WHEN poly.polygon IS NULL THEN 0 ELSE 1 END AS bus_flg_2
   FROM bus_flg_cnt_1 AS bft
-  LEFT JOIN `prd-analysis.w_t_akiyama.bus_polygon_matsumoto_sample_json` AS poly
+  LEFT JOIN `長野県バスルートデータサンプル` AS poly
     ON ST_CONTAINS(ST_GEOGFROMTEXT(poly.polygon),
                    ST_GEOGPOINT(bft.longitude_anonymous, bft.latitude_anonymous))
 ),
@@ -187,7 +186,7 @@ bus_cnt_table AS (
   SELECT bf.*, b_s.bus_cnt, b_s.bus_cnt_2
   FROM (
     SELECT *
-    FROM `prd-analysis.w_t_akiyama.bus_input_sample`
+    FROM `input_sample`
     WHERE pred_tpmode="car" OR pred_tpmode="bike"
   ) AS bf
   LEFT JOIN bus_flg_sum AS b_s
