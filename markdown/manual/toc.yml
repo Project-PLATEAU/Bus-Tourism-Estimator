@@ -4,5 +4,5 @@
   items:
   - name: 環境構築手順書
     href: devMan.md
-  - name: 動作手順
+  - name: 操作マニュアル
     href: userMan.md

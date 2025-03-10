@@ -2,4 +2,5 @@
 
 「観光客交通手段判定(バス)」は、スマホアプリからデータ取得の許諾を行ったユーザーの位置情報データをもとに、移動手段がバスかどうかを判定するロジックです。
 
-![](resources/index1.png)
+![](resources/thumbnail_1.png)
+![](resources/thumbnail_2.png)
