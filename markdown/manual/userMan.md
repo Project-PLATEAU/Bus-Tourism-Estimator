@@ -21,19 +21,24 @@
 ## (1)input_sample.json
 ### 概要
 input_sample.jsonは人流データのログを滞在か移動(鉄道、自動車等、自転車等、徒歩)に分類したデータです。本OSSでは、ダミーデータを用いています。<br>
-[ネスト構造](https://cloud.google.com/bigquery/docs/best-practices-performance-nested?hl=ja)になっているため、BigQuery上での操作が必要です。
+
+本データは位置情報のログをセグメントごとに分けています。セグメントとは位置情報ログの集合であり、移動手段の切り替わり時にセグメントが分割されます。<br>
+#### 例)
+滞在⇨徒歩移動⇨バス移動⇨滞在という順序で移動された場合、①滞在②徒歩移動③バス移動④滞在の4つのセグメントに分類される。
+
+なお、本データは[ネスト構造](https://cloud.google.com/bigquery/docs/best-practices-performance-nested?hl=ja)になっているため、BigQuery上での操作が必要です。
 
 ### テーブルスキーマ
 | カラム名 | 意味 |
 |:-----------|------------:|
 | common_id                  | 端末の固有ID                           |
-| seq_no                     | シーケンスno                           |
+| seg_no                     | セグメント番号　　                      |
 | is_uuid                    | UUIDフラグ                            |
 | os                         | スマートフォンOS                        |
 | arrive_ptime               | 滞在開始時間                           |
 | depart_ptime               | 滞在終了時間                           |
 | visiting_second            | 滞在時間                              |  
-| cnt                        | 滞在の場合のログ数                      | 
+| cnt                        | セグメントのログ数                      | 
 | is_stay                    | 滞在フラグ                             | 
 | raw_array.latitude         | 緯度                                  |
 | raw_array.longitude        | 経度                                  |  
@@ -83,13 +88,13 @@ input_sample.jsonは人流データのログを滞在か移動(鉄道、自動�
 | カラム名 | 意味 |
 |:-----------|------------:|
 | common_id                  | 端末の固有ID                           |
-| seq_no                     | シーケンスno                           |
+| seg_no                     | セグメントno                           |
 | is_uuid                    | UUIDフラグ                            |
 | os                         | スマートフォンOS                        |
 | arrive_ptime               | 滞在開始時間                           |
 | depart_ptime               | 滞在終了時間                           |
 | visiting_second            | 滞在時間                              |  
-| cnt                        | 滞在の場合のログ数                      | 
+| cnt                        | セグメントのログ数                      | 
 | is_stay                    | 滞在フラグ                             | 
 | raw_array.latitude         | 緯度                                  |
 | raw_array.longitude        | 経度                                  |  
