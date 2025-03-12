@@ -80,22 +80,258 @@
 <h1 id="操作マニュアル">操作マニュアル</h1>
 
 <h1 id="1-本書について">1 本書について</h1>
-<p>本書では、「観光客交通手段判定(バス)」の動作手順について記載しています。</p>
+<p>本書では、「バス移動判定クエリ」の動作手順について記載しています。</p>
 <h1 id="2-使い方">2 使い方</h1>
-<p>①inputフォルダ内に存在する以下のサンプルデータをダウンロードしてください。</p>
+<p>①inputフォルダ内に存在する以下のサンプルデータをダウンロードしてください。<br></p>
 <ul>
-<li>・input_sample.json(ダミーデータとなります)</li>
-<li>・ダミープローブデータサンプル.csv</li>
-<li>・長野県バスルートデータサンプル.json</li>
-<li>・長野県メッシュデータサンプル.csv</li>
-<li>②上記のデータをBigQuery上にインポートしてください。</li>
-<li>③queryフォルダ内にある、バス判定用クエリのテーブル参照の箇所を上記のテーブル名に書き換えます。</li>
-<li>④BigQuery上でクエリを実行するとoutputフォルダ内にある出力結果が表示されます。</li>
+<li>input/input_sample.json<br></li>
+<li>input/ダミープローブデータサンプル.csv<br></li>
+<li>input/長野県バスルートデータサンプル.json<br></li>
+<li>input/長野県メッシュデータサンプル.csv<br></li>
 </ul>
-<h1 id="3-出力データ">3 出力データ</h1>
-<ul>
-<li>バス判定がされたデータが出力されます。</li>
-</ul>
+<p>②上記のデータをBigQueryの任意のデータセットにアップロードしてください。<br></p>
+<p>③query/バス判定用クエリのテーブル参照の箇所を上記のテーブル名に書き換えます。<br></p>
+<p>④BigQuery上でクエリを実行するとoutputフォルダ内にある出力結果が表示されます。<br></p>
+<h1 id="3-入力データについて">3 入力データについて</h1>
+<h2 id="1input_samplejson">(1)input_sample.json</h2>
+<h3 id="概要">概要</h3>
+<p>input_sample.jsonは人流データのログを滞在か移動(鉄道、自動車等、自転車等、徒歩)に分類したデータです。本OSSでは、ダミーデータを用いています。<br></p>
+<p>本データは位置情報のログをセグメントごとに分けています。セグメントとは位置情報ログの集合であり、移動手段の切り替わり時にセグメントが分割されます。<br></p>
+<h4 id="例">例)</h4>
+<p>滞在⇨徒歩移動⇨バス移動⇨滞在という順序で移動された場合、①滞在②徒歩移動③バス移動④滞在の4つのセグメントに分類される。</p>
+<p>なお、本データは<a href="https://cloud.google.com/bigquery/docs/best-practices-performance-nested?hl=ja">ネスト構造</a>になっているため、BigQuery上での操作が必要です。</p>
+<h3 id="テーブルスキーマ">テーブルスキーマ</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">カラム名</th>
+<th style="text-align: right;">意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">common_id</td>
+<td style="text-align: right;">端末の固有ID</td>
+</tr>
+<tr>
+<td style="text-align: left;">seg_no</td>
+<td style="text-align: right;">セグメント番号</td>
+</tr>
+<tr>
+<td style="text-align: left;">is_uuid</td>
+<td style="text-align: right;">UUIDフラグ</td>
+</tr>
+<tr>
+<td style="text-align: left;">os</td>
+<td style="text-align: right;">スマートフォンOS</td>
+</tr>
+<tr>
+<td style="text-align: left;">arrive_ptime</td>
+<td style="text-align: right;">滞在開始時間</td>
+</tr>
+<tr>
+<td style="text-align: left;">depart_ptime</td>
+<td style="text-align: right;">滞在終了時間</td>
+</tr>
+<tr>
+<td style="text-align: left;">visiting_second</td>
+<td style="text-align: right;">滞在時間</td>
+</tr>
+<tr>
+<td style="text-align: left;">cnt</td>
+<td style="text-align: right;">セグメントのログ数</td>
+</tr>
+<tr>
+<td style="text-align: left;">is_stay</td>
+<td style="text-align: right;">滞在フラグ</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.latitude</td>
+<td style="text-align: right;">緯度</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.longitude</td>
+<td style="text-align: right;">経度</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.sdk_detect_ptime</td>
+<td style="text-align: right;">ログ検知時刻</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.accuracy</td>
+<td style="text-align: right;">ログ検知誤差</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.latitude</td>
+<td style="text-align: right;">緯度</td>
+</tr>
+<tr>
+<td style="text-align: left;">pred_tpmode</td>
+<td style="text-align: right;">移動手段(鉄道、自動車等、自転車等、徒歩)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2ダミープローブデータサンプル">(2)ダミープローブデータサンプル</h2>
+<h3 id="概要-1">概要</h3>
+<p>ダミープローブデータはバスの移動情報を取得したデータです。本OSSでは、ダミーデータを用いています。</p>
+<h3 id="テーブルスキーマ-1">テーブルスキーマ</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">カラム名</th>
+<th style="text-align: right;">意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">id</td>
+<td style="text-align: right;">車両ID</td>
+</tr>
+<tr>
+<td style="text-align: left;">type</td>
+<td style="text-align: right;">車両種別</td>
+</tr>
+<tr>
+<td style="text-align: left;">OD</td>
+<td style="text-align: right;">出庫/経路/入庫</td>
+</tr>
+<tr>
+<td style="text-align: left;">numbering</td>
+<td style="text-align: right;">個別データ連番</td>
+</tr>
+<tr>
+<td style="text-align: left;">date_time</td>
+<td style="text-align: right;">時刻</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lon</td>
+<td style="text-align: right;">緯度</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lat</td>
+<td style="text-align: right;">経度</td>
+</tr>
+<tr>
+<td style="text-align: left;">speed</td>
+<td style="text-align: right;">速度</td>
+</tr>
+<tr>
+<td style="text-align: left;">direction</td>
+<td style="text-align: right;">方向</td>
+</tr>
+<tr>
+<td style="text-align: left;">3rd_mesh</td>
+<td style="text-align: right;">3次メッシュ番号</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3長野県バスルートデータサンプル">(3)長野県バスルートデータサンプル</h2>
+<h3 id="概要-2">概要</h3>
+<p>国土数値情報より取得したバスの路線情報を示したデータです。</p>
+<h3 id="テーブルスキーマ-2">テーブルスキーマ</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">カラム名</th>
+<th style="text-align: right;">意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">N07_001</td>
+<td style="text-align: right;">バス事業者名</td>
+</tr>
+<tr>
+<td style="text-align: left;">N07_002</td>
+<td style="text-align: right;">その他特記事項</td>
+</tr>
+<tr>
+<td style="text-align: left;">geometry</td>
+<td style="text-align: right;">路線のポリゴン</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4長野県メッシュデータサンプル">(4)長野県メッシュデータサンプル</h2>
+<h3 id="概要-3">概要</h3>
+<p>長野県内の125mメッシュコードを示したデータです。
+| カラム名 | 意味 |
+|:-----------|------------:|
+| mt_mesh                 | 長野県の125mメッシュコード                           |</p>
+<h1 id="4-出力データ">4 出力データ</h1>
+<p>クエリを実行すると、バス判定がなされ、以下のスキーマに従ってデータが抽出されます。</p>
+<h2 id="出力データのテーブルスキーマ">出力データのテーブルスキーマ</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">カラム名</th>
+<th style="text-align: right;">意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">common_id</td>
+<td style="text-align: right;">端末の固有ID</td>
+</tr>
+<tr>
+<td style="text-align: left;">seg_no</td>
+<td style="text-align: right;">セグメントno</td>
+</tr>
+<tr>
+<td style="text-align: left;">is_uuid</td>
+<td style="text-align: right;">UUIDフラグ</td>
+</tr>
+<tr>
+<td style="text-align: left;">os</td>
+<td style="text-align: right;">スマートフォンOS</td>
+</tr>
+<tr>
+<td style="text-align: left;">arrive_ptime</td>
+<td style="text-align: right;">滞在開始時間</td>
+</tr>
+<tr>
+<td style="text-align: left;">depart_ptime</td>
+<td style="text-align: right;">滞在終了時間</td>
+</tr>
+<tr>
+<td style="text-align: left;">visiting_second</td>
+<td style="text-align: right;">滞在時間</td>
+</tr>
+<tr>
+<td style="text-align: left;">cnt</td>
+<td style="text-align: right;">セグメントのログ数</td>
+</tr>
+<tr>
+<td style="text-align: left;">is_stay</td>
+<td style="text-align: right;">滞在フラグ</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.latitude</td>
+<td style="text-align: right;">緯度</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.longitude</td>
+<td style="text-align: right;">経度</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.sdk_detect_ptime</td>
+<td style="text-align: right;">ログ検知時刻</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.accuracy</td>
+<td style="text-align: right;">ログ検知誤差</td>
+</tr>
+<tr>
+<td style="text-align: left;">raw_array.latitude</td>
+<td style="text-align: right;">緯度</td>
+</tr>
+<tr>
+<td style="text-align: left;">pred_tpmode</td>
+<td style="text-align: right;">移動手段(鉄道、自動車、バス、自転車、徒歩)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="5-注意点">5 注意点</h1>
+<p>本判定ロジックの精度はブログウォッチャー社がスマホアプリユーザーから許諾を受け収集している位置情報データを用いて検証されています。他データベンダーのデータであってもテーブルスキーマを満たせば判定は可能ですが、精度が担保できない恐れがあります。</p>
 
 </article>
           </div>

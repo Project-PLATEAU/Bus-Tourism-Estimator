@@ -1,5 +1,5 @@
 {
-  "source_base_path": "C:/Users/yutaka_ogawa/Downloads/docfx/markdown",
+  "source_base_path": "C:/Users/yutaka_ogawa/Downloads/Tourism-Statistics-Converter-gh-pages/markdown",
   "xrefmap": "xrefmap.yml",
   "files": [
     {
@@ -49,6 +49,26 @@
       "output": {
         ".html": {
           "relative_path": "manual/userMan.html"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "resources/thumbnail_1.png",
+      "output": {
+        "resource": {
+          "relative_path": "resources/thumbnail_1.png"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "resources/thumbnail_2.png",
+      "output": {
+        "resource": {
+          "relative_path": "resources/thumbnail_2.png"
         }
       },
       "version": ""
